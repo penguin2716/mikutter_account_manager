@@ -122,7 +122,7 @@ module AccountManager
   | skip_status      |                                    | true,t,1           | optional |
 
   Example:
-    AccountManager::update_profile_image({image: Base64.encode64(File.expand_path("path/to/image.png"))})
+    AccountManager::update_profile_image({image: Base64.encode64(open("path/to/image.png").read)})
 =end
   def self.update_profile_image(hash)
     call_api('account/update_profile_image', hash)
