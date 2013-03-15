@@ -1,0 +1,109 @@
+* これはなに
+  mikutterでTwitterのプロフィールとかを設定するためのプラグインです．
+  投稿ボックスに
+  : AccountManager::update_profile name: "ぺんぎんさんだよー"
+  とか入力して Ctrl-Return すると名前（表示名）の変更ができたりします．
+
+* 機能
+** 設定を取得
+   Deferredが返ってくるので，適宜利用してください．
+   : AccountManager::settings
+
+** 認証情報を取得
+   Deferredが返ってくるので，適宜利用してください．
+   : AccountManager::verify_credentials
+
+** 基本設定変更
+   <引数>
+   | key                  | content                                 | condition                | require? |
+   |----------------------+-----------------------------------------+--------------------------+----------|
+   | trend_location_woeid | トレンド表示に使用するWhere On Earth ID | cf. GET trends/available | optional |
+   | sleep_time_enabled   | 就寝時間中の通知をオフにする            | true,t,1                 | optional |
+   | start_sleep_time     | 何時から寝るか                          | 00-23                    | optional |
+   | end_sleep_time       | 何時に起きるか                          | 00-23                    | optional |
+   | time_zone            | TimeZone設定                            | Rails TimeZone names     | optional |
+   | lang                 | 言語設定                                | cf. GET help/languages   | optional |
+
+   : AccountManager::settings lang: 'en'
+
+
+** 通知設定
+   <引数>
+   | key              | content          | condition   | require? |
+   |------------------+------------------+-------------+----------|
+   | device           | 通知のON/OFF設定 | sms or none | required |
+   | include_entities |                  | true,t,1    | optional |
+
+   : AccountManager::update_delivery_device device: none
+
+
+** 背景画像変更
+   <引数>
+   | key              | content                        | condition          | require? |
+   |------------------+--------------------------------+--------------------+----------|
+   | image            | Base64エンコードされた背景画像 | GIF,JPG,PNG,<800kB | optional |
+   | tile             | タイル状にするか               | true,t,1           | optional |
+   | include_entities |                                | true,false         | optional |
+   | skip_status      |                                | true,t,1           | optional |
+   | use              | 背景画像色を使用するかどうか   | true,t,1           | optional |
+
+   : AccountManager::update_profile_background_image image: "iVBORw0KGgoAA..."
+
+** プロフィールの色設定
+   <引数>
+   | key                          | content                    | condition  | require? |
+   |------------------------------+----------------------------+------------+----------|
+   | profile_background_color     | プロフィール背景色         | 3 or 6文字 | optional |
+   | profile_link_color           | リンクの色                 | 3 or 6文字 | optional |
+   | profile_sidebar_border_color | サイドバーのborder色       | 3 or 6文字 | optional |
+   | profile_sidebar_fill_color   | サイドバーの背景色         | 3 or 6文字 | optional |
+   | profile_text_color           | プロフィールのテキストの色 | 3 or 6文字 | optional |
+   | include_entities             |                            | true,false | optional |
+   | skip_status                  |                            | true,t,1   | optional |
+
+   : AccountManager::update_profile_colors profile_background_color: "AF48DD"
+
+** プロフィール変更
+   <引数>
+   | key              | content      | condition   | require? |
+   |------------------+--------------+-------------+----------|
+   | name             | 名前         | 20文字まで  | optional |
+   | url              | ホームページ | 100文字まで | optional |
+   | location         | 場所         | 30文字まで  | optional |
+   | description      | 自己紹介     | 160文字まで | optional |
+   | include_entities |              | true,false  | optional |
+   | skip_status      |              | true,t,1    | optional |
+
+   : AccountManager::update_profile name: "ぺんぎんさん", location: "研究室"
+
+** アイコン変更
+   <引数>
+   | key              | content                            | condition          | require? |
+   |------------------+------------------------------------+--------------------+----------|
+   | image            | Base64エンコードされた画像ファイル | GIF,JPG,PNG,<700kB | required |
+   | include_entities |                                    | true,false         | optional |
+   | skip_status      |                                    | true,t,1           | optional |
+
+   : AccountManager::update_profile_background_image image: "iVBORw0KGgoAA..."
+
+** アップロード済みのバナー画像を削除
+  : AccountManager::remove_profile_banner
+
+** バナー画像の設定
+   <引数>
+   | key         | content                        | condition                                   | require? |
+   |-------------+--------------------------------+---------------------------------------------+----------|
+   | banner      | Base64エンコードされた画像     | <5MB                                        | required |
+   | width       | 画像を切り抜く際の幅           | require       height,offset_left,offset_top | optional |
+   | height      | 画像を切り抜く際の高さ         | require width,       offset_left,offset_top | optional |
+   | offset_left | 画像を切り抜く際の左オフセット | require width,height,            offset_top | optional |
+   | offset_top  | 画像を切り抜く際の上オフセット | require width,height,offset_left            | optional |
+
+   : AccountManager::update_profile_banner banner: "iVBORw0KGgoAA..."
+
+* 備考
+  画像はBase64エンコードする必要があります．shell_postプラグインが入っていれば，
+  : @system
+  : require 'base64'
+  : AccountManager::update_profile_image image: Base64.encode64(open('path/to/image.png').read)
+  を投稿ボックスに入力してCtrl-Returnすればアイコンが変更できます．
